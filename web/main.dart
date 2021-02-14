@@ -1,13 +1,13 @@
 import 'dart:html';
 
-enum MainAxisAlignment {
+enum MainAlign {
   Start,
   Center,
   End,
   Even,
 }
 
-enum CrossAxisAlignment { Start, Center, End, Stretch }
+enum CrossAlign { Start, Center, End, Stretch }
 
 enum Direction { Vertical, Horizontal }
 
@@ -16,99 +16,79 @@ void main() {
   var app = querySelector('#app');
   app.text = 'Your Dart app is running. again again';
   app.style.backgroundColor = 'green';
-
   app.style.minHeight = '500px';
 
-  // app.onClick.listen((event) {
-  //   app.style.backgroundColor = 'red';
-  // });
-
-  app.children.add(vertical(items, mainAxisAlignment: MainAxisAlignment.End));
   app.children.add(horizontal(items));
-  // app.children.add(buildMenu());
+  app.children.add(vertical(items, MainAlign.End));
+  app.children.add(horizontal(items));
 }
 
 Element horizontal(List<Element> children,
-    {MainAxisAlignment mainAxisAlignment}) {
-
-  return container(
-      children: children,
-      direction: Direction.Horizontal,
-      mainAxisAlignment: mainAxisAlignment);
+    [MainAlign mainAlign = MainAlign.Even, CrossAlign crossAlign = CrossAlign.Center]) {
+  return container(children, Direction.Horizontal, mainAlign, crossAlign);
 }
 
 Element vertical(List<Element> children,
-    {MainAxisAlignment mainAxisAlignment}) {
+    [MainAlign MainAlign, CrossAlign CrossAlign = CrossAlign.Center]) {
+  return container(children, Direction.Vertical, MainAlign, CrossAlign);
+}
+
+Element box(Element element) {
   return container(
-      children: children,
-      direction: Direction.Vertical,
-      mainAxisAlignment: mainAxisAlignment);
+      [element], Direction.Horizontal, MainAlign.Center, CrossAlign.Center);
 }
 
 Element container(
-    {List<Element> children,
+    [List<Element> children,
     Direction direction = Direction.Horizontal,
-    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Even,
-    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Center}) {
+    MainAlign mainAlign = MainAlign.Even,
+    CrossAlign crossAlign = CrossAlign.Center]) {
   var container = Element.div();
-  setLayout(container, direction, mainAxisAlignment, crossAxisAlignment);
+  setLayout(container, direction, mainAlign, crossAlign);
   container.children.addAll(children);
   return container;
-  // row.style.display = 'flex';
-  // row.style.flexDirection = convertDirectionToFlexDirection(direction);
-  // row.style.justifyContent = convertMainAxisAlignmentToJustifyContent(main);
-  // row.style.alignItems = convertCrossAxisAlignmentToAlignItem(cross);
-  // if(children != null){
-  //   row.children.addAll(children);
-  // }
-  // return row;
 }
 
-Element setLayout(
-    Element element,
-    Direction direction,
-    MainAxisAlignment mainAxisAlignment,
-    CrossAxisAlignment crossAxisAlignment) {
-
+Element setLayout(Element element, Direction direction, MainAlign MainAlign,
+    CrossAlign CrossAlign) {
   element.style.display = 'flex';
   element.style.flexDirection = convertDirectionToFlexDirection(direction);
-  element.style.justifyContent =
-      convertMainAxisAlignmentToJustifyContent(mainAxisAlignment);
-  element.style.alignItems =
-      convertCrossAxisAlignmentToAlignItem(crossAxisAlignment);
+  element.style.justifyContent = convertMainAlignToJustifyContent(MainAlign);
+  element.style.alignItems = convertCrossAlignToAlignItem(CrossAlign);
+  return element;
 }
 
 String convertDirectionToFlexDirection(Direction direction) {
   return direction == Direction.Horizontal ? 'row' : 'column';
 }
 
-String convertMainAxisAlignmentToJustifyContent(MainAxisAlignment value) {
+String convertMainAlignToJustifyContent(MainAlign value) {
   switch (value) {
-    case MainAxisAlignment.Start:
+    case MainAlign.Start:
       return 'flex-start';
-    case MainAxisAlignment.Center:
+    case MainAlign.Center:
       return 'center';
-    case MainAxisAlignment.End:
+    case MainAlign.End:
       return 'flex-end';
-    case MainAxisAlignment.Even:
+    case MainAlign.Even:
       return 'space-evenly';
   }
-  throw Exception('couldt not convert to justify content');
+  throw Exception('could not convert to justify content: $value');
 }
 
-String convertCrossAxisAlignmentToAlignItem(CrossAxisAlignment value) {
+String convertCrossAlignToAlignItem(CrossAlign value) {
   switch (value) {
-    case CrossAxisAlignment.Start:
+    case CrossAlign.Start:
       return 'flex-start';
-    case CrossAxisAlignment.Center:
+    case CrossAlign.Center:
       return 'center';
-    case CrossAxisAlignment.End:
+    case CrossAlign.End:
       return 'flex-end';
-    case CrossAxisAlignment.Stretch:
+    case CrossAlign.Stretch:
       return 'stretch';
   }
 
-  throw Exception("could not parse item");
+  throw Exception("could not parse item: $value");
 }
 
 List<Element> get items {
