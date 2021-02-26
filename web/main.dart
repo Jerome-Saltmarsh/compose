@@ -1,7 +1,7 @@
 import 'dart:html';
 
 import 'framework.dart';
-import 'dart-compose.dart';
+import 'compose.dart';
 
 class CounterDispatcher implements DispatchService<CounterState> {
   @override
@@ -20,9 +20,20 @@ void main() {
   runApp();
 }
 
-StateRenderer stateRenderer = CounterRenderer();
-DispatchService dispatchService = CounterDispatcher();
+//////////////// SERVICES ////////////////
+
+final StateRenderer stateRenderer = CounterRenderer();
+final DispatchService dispatchService = CounterDispatcher();
+
+//////////////// STATE ////////////////
+
 State state = CounterState('hello world', 0);
+
+//////////////// HELPER ////////////////
+
+Future<DispatchResponse> dispatch(Action action) {
+  return dispatchService.dispatch(state, action);
+}
 
 Future runApp() async {
   stateRenderer.render(state);
@@ -47,9 +58,9 @@ class CounterRenderer implements StateRenderer<CounterState> {
     var count = div();
     count.text = 'count: ${testState.count}';
 
-    add(app, count);
+    app.add(count);
 
-    var addButton = div(text: 'add', onClick: () async {
+    var addButton = text('add', onClick: () async {
       print('add clicked');
       var response = await dispatchService.dispatch(state, AddAction(5));
       if (response.state != null) {
@@ -57,28 +68,21 @@ class CounterRenderer implements StateRenderer<CounterState> {
         render(state);
       }
     });
-    add(app, addButton);
+
+    app.add(addButton);
   }
 }
 
 class MenuRenderer implements StateRenderer<CounterState> {
   @override
   void render(CounterState testState) {
-    print('render()');
-
-    var app = querySelector('#app');
-    app.minHeight = 500;
-
-    var menu = vStartStart(
-        [menuItem('menu 1'), menuItem('menu 2'), menuItem('menu 3')]);
-
-    var content = div();
-    content.text = 'content';
-
-    var sidebar = div();
-    sidebar.text = 'side bar';
-
-    add(app, hApartStart([menu, content, sidebar]));
+    select('app')
+        .minHeight(500)
+        .add(column([
+          text('menu 1'),
+          text('menu 2'),
+          text('menu 3'),
+        ]));
   }
 }
 
@@ -88,11 +92,4 @@ class CounterState extends State {
   final int count;
 
   CounterState(this.username, this.count);
-}
-
-Element menuItem(String text) {
-  var e = element(text);
-  e.minHeight = 50;
-  e.style.border = '1px solid black';
-  return e;
 }
