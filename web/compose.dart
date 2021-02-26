@@ -107,6 +107,11 @@ Element div(
 
 extension ElementExtensions on Element {
 
+  Element clear(){
+    children.clear();
+    return this;
+  }
+
   Element height(int value){
     return minHeight(value)
           .maxHeight(value);

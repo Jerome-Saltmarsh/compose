@@ -31,8 +31,16 @@ State state = CounterState('hello world', 0);
 
 //////////////// HELPER ////////////////
 
-Future<DispatchResponse> dispatch(Action action) {
-  return dispatchService.dispatch(state, action);
+Future<DispatchResponse> dispatch(Action action) async {
+  var dispatchResponse = await dispatchService.dispatch(state, action);
+  if(dispatchResponse.state != null){
+     renderState();
+  }
+  return dispatchResponse;
+}
+
+void renderState(){
+  stateRenderer.render(state);
 }
 
 Future runApp() async {
@@ -45,6 +53,14 @@ class AddAction extends Action {
   AddAction(this.value);
 }
 
+class AddFiveAction extends AddAction{
+  AddFiveAction() : super(5);
+}
+
+class AddTen extends AddAction{
+  AddTen() : super(10);
+}
+
 abstract class StateRenderer<T extends State> {
   void render(T state);
 }
@@ -52,9 +68,14 @@ abstract class StateRenderer<T extends State> {
 class CounterRenderer implements StateRenderer<CounterState> {
   @override
   void render(CounterState testState) {
-    print('render()');
-    var app = querySelector('#app');
-    app.children.clear();
+    var app = select('app')
+        .clear()
+        .add(text('Count: ${testState.count}'))
+        .add(text('Add 5', onClick: () async {
+          await dispatch(AddAction(5));
+        })
+    );
+
     var count = div();
     count.text = 'count: ${testState.count}';
 
@@ -72,20 +93,6 @@ class CounterRenderer implements StateRenderer<CounterState> {
     app.add(addButton);
   }
 }
-
-class MenuRenderer implements StateRenderer<CounterState> {
-  @override
-  void render(CounterState testState) {
-    select('app')
-        .minHeight(500)
-        .add(column([
-          text('menu 1'),
-          text('menu 2'),
-          text('menu 3'),
-        ]));
-  }
-}
-
 
 class CounterState extends State {
   final String username;
