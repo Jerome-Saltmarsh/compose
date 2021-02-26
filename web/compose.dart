@@ -1,3 +1,6 @@
+//////////////// *** COMPOSE *** ////////////////
+
+//////////////// IMPORTS ////////////////
 import 'dart:html';
 
 //////////////// ENUMS ////////////////
@@ -5,20 +8,17 @@ import 'dart:html';
 enum MainAlign { Start, Center, End, Even, Apart }
 enum CrossAlign { Start, Center, End, Stretch }
 enum Direction { Vertical, Horizontal }
-
 enum BorderStyle { Solid, Dashed }
 
 //////////////// CONSTANT ////////////////
 
 const Direction horizontal = Direction.Horizontal;
 const Direction vertical = Direction.Vertical;
-
-MainAlign mainAlignApart = MainAlign.Apart;
-MainAlign mainAlignStart = MainAlign.Start;
-MainAlign mainAlignEnd = MainAlign.End;
-MainAlign mainAlignEven = MainAlign.Even;
-
-CrossAlign crossAlignStretch = CrossAlign.Stretch;
+const MainAlign mainAlignApart = MainAlign.Apart;
+const MainAlign mainAlignStart = MainAlign.Start;
+const MainAlign mainAlignEnd = MainAlign.End;
+const MainAlign mainAlignEven = MainAlign.Even;
+const CrossAlign crossAlignStretch = CrossAlign.Stretch;
 
 //////////////// CUSTOM ////////////////
 
@@ -43,7 +43,6 @@ Element row(List<Element> children, { Function onClick}) {
 Element text(String value, {Function onClick}) {
   return div(text: value, onClick: onClick);
 }
-
 
 //////////////// BUILDERS ////////////////
 
@@ -178,13 +177,4 @@ String convertMainAlignToJustifyContent(MainAlign value) {
       return 'space-between';
   }
   throw Exception('could not convert to justify content: $value');
-}
-
-//////////////// UTIL ////////////////
-
-Element select(String id){
-  if(id.startsWith('#')){
-    return querySelector(id);
-  }
-  return querySelector('#$id');
 }

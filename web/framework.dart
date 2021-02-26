@@ -1,38 +1,98 @@
+import 'dart:html';
 
-class Server {
+//////////////// *** FRAMEWORK *** ////////////////
 
+abstract class StateRenderer<T extends State> {
+  void render(Element app, T state, Dispatch dispatch);
 }
 
-abstract class Data {
+class App {
+  State state;
+  StateRenderer renderer;
+  ActionDispatcher dispatcher;
+  Element element;
 
+  App(this.state, this.renderer, this.dispatcher) {
+    print('app()');
+    element = select('app');
+    render();
+  }
+
+  void render() {
+    renderer.render(element, state, dispatch);
+  }
+
+  Future<DispatchResponse> dispatch(Action action) async {
+    print('dispatching $action');
+    var dispatchResponse = await dispatcher.dispatch(state, action);
+    handleDispatchResponse(dispatchResponse);
+    return dispatchResponse;
+  }
+
+  void handleDispatchResponse(DispatchResponse dispatchResponse){
+    print('handleDispatchResponse()');
+    if (dispatchResponse.state != null) {
+      setState(dispatchResponse.state);
+    }
+  }
+
+  // MUTATIONS
+
+  void setState(State nextState) {
+    print('setState($nextState)');
+    state = nextState;
+    render();
+  }
+}
+
+Element select(String id) {
+  print('select($id)');
+  if (id.startsWith('#')) {
+    return querySelector(id);
+  }
+  return querySelector('#$id');
+}
+
+//////////////// STRUCTS ////////////////
+
+class Server {
 }
 
 class State {
 }
 
 class Action {
-
-}
-
-abstract class DispatchService<T extends State> {
-  Future<DispatchResponse> dispatch(T state, Action action);
 }
 
 class Client {
   final State state;
-  final DispatchService dispatchService;
+  final ActionDispatcher dispatchService;
 
   Client({this.state, this.dispatchService});
 }
 
-class Dispatch<T> {
+class DispatchResponse {
+  final State state;
+
+  DispatchResponse(this.state);
+}
+
+class Dispatchment<T> {
   final T action;
   final State state;
 
-  Dispatch({this.action, this.state});
+  Dispatchment({this.action, this.state});
 }
 
-class DispatchResponse {
-  final State state;
-  DispatchResponse(this.state);
+//////////////// TYPEDEVS ////////////////
+
+typedef Dispatch = Future<DispatchResponse> Function(Action action);
+
+//////////////// ABSTRACTIONS ////////////////
+
+abstract class ActionDispatcher<T extends State> {
+  Future<DispatchResponse> dispatch(T state, Action action);
 }
+
+
+
