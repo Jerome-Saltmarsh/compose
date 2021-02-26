@@ -12,14 +12,24 @@ class App {
   ActionDispatcher dispatcher;
   Element element;
 
-  App(this.state, this.renderer, this.dispatcher) {
+  App(this.state, this.renderer, this.dispatcher, {String selector = 'app'}) {
     print('app()');
-    element = select('app');
+    element = select(selector);
+    if (element == null) {
+      throw Exception(('element with selector $selector could not be found'));
+    }
     render();
   }
 
   void render() {
+    print('app.render()');
+    clear();
     renderer.render(element, state, dispatch);
+  }
+
+  void clear(){
+    print('app.clear()');
+    element.children.clear();
   }
 
   Future<DispatchResponse> dispatch(Action action) async {

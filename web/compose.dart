@@ -40,11 +40,11 @@ Element row(List<Element> children, { Function onClick}) {
       onClick: onClick);
 }
 
+//////////////// BUILDERS ////////////////
+
 Element text(String value, {Function onClick}) {
   return div(text: value, onClick: onClick);
 }
-
-//////////////// BUILDERS ////////////////
 
 Element button(String value, {Function onClick}) {
   final button = input(value: value, type: 'button', onClick: onClick);
