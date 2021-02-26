@@ -6,38 +6,26 @@ abstract class StateRenderer<T extends State> {
   void render(Element app, T state, Dispatch dispatch);
 }
 
-class App {
-  State state;
-  StateRenderer renderer;
-  ActionDispatcher dispatcher;
-  Element element;
+abstract class App<T extends State> implements ActionDispatchHandler<T>, StateRenderer<T> {
 
-  App(this.state, this.renderer, this.dispatcher, {String selector = 'app'}) {
+  T state;
+  Element root;
+
+  App(this.state, {String selector = 'app'}) {
     print('app()');
-    element = select(selector);
-    if (element == null) {
-      throw Exception(('element with selector $selector could not be found'));
+    root = select(selector);
+    if (root == null) {
+      throw Exception(('Element with selector $selector could not be found'));
     }
-    render();
+    render(root, state, dispatch);
   }
 
-  void render() {
-    print('app.render()');
-    clear();
-    renderer.render(element, state, dispatch);
+  Future<DispatchResponse> dispatch(Action action) async{
+    print('app.dispatch($action)');
+    var response = await handleActionDispatch(state, action);
+    setState(response.state);
   }
 
-  void clear(){
-    print('app.clear()');
-    element.children.clear();
-  }
-
-  Future<DispatchResponse> dispatch(Action action) async {
-    print('dispatching $action');
-    var dispatchResponse = await dispatcher.dispatch(state, action);
-    handleDispatchResponse(dispatchResponse);
-    return dispatchResponse;
-  }
 
   void handleDispatchResponse(DispatchResponse dispatchResponse){
     print('handleDispatchResponse()');
@@ -51,9 +39,16 @@ class App {
   void setState(State nextState) {
     print('setState($nextState)');
     state = nextState;
-    render();
+    clear();
+    render(root, state, dispatch);
+  }
+
+  void clear(){
+    print('app.clear()');
+    root.children.clear();
   }
 }
+
 
 Element select(String id) {
   print('select($id)');
@@ -76,7 +71,7 @@ class Action {
 
 class Client {
   final State state;
-  final ActionDispatcher dispatchService;
+  final ActionDispatchHandler dispatchService;
 
   Client({this.state, this.dispatchService});
 }
@@ -100,8 +95,8 @@ typedef Dispatch = Future<DispatchResponse> Function(Action action);
 
 //////////////// ABSTRACTIONS ////////////////
 
-abstract class ActionDispatcher<T extends State> {
-  Future<DispatchResponse> dispatch(T state, Action action);
+abstract class ActionDispatchHandler<T extends State> {
+  Future<DispatchResponse> handleActionDispatch(T state, Action action);
 }
 
 

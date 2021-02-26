@@ -7,6 +7,6 @@ import 'counter-app.dart';
 /// webdev serve
 void main() {
   print('main()');
-  counterApp();
+  CounterApp(CounterState(100));
 }
 

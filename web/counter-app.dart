@@ -1,23 +1,29 @@
 import 'dart:html';
 
-import 'compose.dart';
 import 'framework.dart';
+import 'compose.dart';
 
-App counterApp() {
-  print('counterApp()');
-  return App(CounterState(0), CounterRenderer(), CounterDispatcher());
-}
+class CounterApp extends App<CounterState> {
 
-class CounterState extends State {
-  final int count;
+  CounterApp(CounterState state) : super(state);
 
-  CounterState(this.count);
-}
-
-class CounterDispatcher implements ActionDispatcher<CounterState> {
   @override
-  Future<DispatchResponse> dispatch(CounterState state, Action action) async {
-    print('counterDispatch.dispatch($state, $action);');
+  void render(Element app, CounterState state, dispatch) {
+    app.add(row([text('menu 1'), text('menu 2'), text('menu 3')]))
+        .add(text('Count: ${state.count}'))
+        .add(text('Add 5', onClick: () {
+      print('add 5 clicked');
+      dispatch(Add5());
+    }))
+        .add(text('Double', onClick: () {
+      print('double button clicked');
+      dispatch(Double());
+    }));
+  }
+
+  @override
+  Future<DispatchResponse> handleActionDispatch(CounterState state, Action action) async {
+    print('counterApp.handleActionDispatch($state, $action)');
 
     if (action is AddAction) {
       return DispatchResponse(CounterState(state.count + action.value));
@@ -26,7 +32,14 @@ class CounterDispatcher implements ActionDispatcher<CounterState> {
       return DispatchResponse(CounterState(state.count + state.count));
     }
     return DispatchResponse(state);
+
   }
+}
+
+class CounterState extends State {
+  final int count;
+
+  CounterState(this.count);
 }
 
 class AddAction extends Action {
@@ -43,22 +56,4 @@ class Double extends Action {}
 
 class AddTen extends AddAction {
   AddTen() : super(10);
-}
-
-class CounterRenderer implements StateRenderer<CounterState> {
-  @override
-  void render(Element app, CounterState state, Dispatch dispatch) {
-    print('counterRenderer.render()');
-    app
-        .add(row([text('menu 1'), text('menu 2'), text('menu 3')]))
-        .add(text('Count: ${state.count}'))
-        .add(text('Add 5', onClick: () {
-          print('add 5 clicked');
-          dispatch(Add5());
-        }))
-        .add(text('Double', onClick: () {
-          print('double button clicked');
-          dispatch(Double());
-        }));
-  }
 }
