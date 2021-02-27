@@ -1,54 +1,11 @@
 import 'dart:html';
 
+
 //////////////// *** FRAMEWORK *** ////////////////
 
 abstract class StateRenderer<T extends State> {
-  void render(Element app, T state, Dispatch dispatch);
+  Element render(T state, Dispatch dispatch);
 }
-
-abstract class App<T extends State> implements ActionDispatchHandler<T>, StateRenderer<T> {
-
-  T state;
-  Element root;
-
-  App(this.state, {String selector = 'app'}) {
-    print('app()');
-    root = select(selector);
-    if (root == null) {
-      throw Exception(('Element with selector $selector could not be found'));
-    }
-    render(root, state, dispatch);
-  }
-
-  Future<DispatchResponse> dispatch(Action action) async{
-    print('app.dispatch($action)');
-    var response = await handleActionDispatch(state, action);
-    setState(response.state);
-  }
-
-
-  void handleDispatchResponse(DispatchResponse dispatchResponse){
-    print('handleDispatchResponse()');
-    if (dispatchResponse.state != null) {
-      setState(dispatchResponse.state);
-    }
-  }
-
-  // MUTATIONS
-
-  void setState(State nextState) {
-    print('setState($nextState)');
-    state = nextState;
-    clear();
-    render(root, state, dispatch);
-  }
-
-  void clear(){
-    print('app.clear()');
-    root.children.clear();
-  }
-}
-
 
 Element select(String id) {
   print('select($id)');
@@ -58,10 +15,15 @@ Element select(String id) {
   return querySelector('#$id');
 }
 
+abstract class IComposer {
+  Element compose<T extends State>(T state, Dispatch dispatch);
+}
+
+
+
+
 //////////////// STRUCTS ////////////////
 
-class Server {
-}
 
 class State {
 }
@@ -69,18 +31,6 @@ class State {
 class Action {
 }
 
-class Client {
-  final State state;
-  final ActionDispatchHandler dispatchService;
-
-  Client({this.state, this.dispatchService});
-}
-
-class DispatchResponse {
-  final State state;
-
-  DispatchResponse(this.state);
-}
 
 class Dispatchment<T> {
   final T action;
@@ -90,14 +40,27 @@ class Dispatchment<T> {
 }
 
 //////////////// TYPEDEVS ////////////////
+typedef Dispatch = void Function(Action action);
+typedef Compose = Element Function<T extends State>(T state, Dispatch dispatch);
+typedef Handle = Future<State> Function<S extends State, A extends Action>(S state, A action);
 
-typedef Dispatch = Future<DispatchResponse> Function(Action action);
+abstract class Handler<S extends State> {
+  Future<State> handle(S state, Action action);
+}
+
+abstract class Dispatcher {
+  void dispatch(Action action);
+}
+
+abstract class Composer<T extends State> {
+  Element compose(T state, Dispatch dispatch);
+}
 
 //////////////// ABSTRACTIONS ////////////////
 
-abstract class ActionDispatchHandler<T extends State> {
-  Future<DispatchResponse> handleActionDispatch(T state, Action action);
-}
+// abstract class DispatchHandler<T extends State> {
+//   Future<DispatchResponse> handleActionDispatch(T state, Action action);
+// }
 
 
 
