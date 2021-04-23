@@ -94,12 +94,22 @@ extension ElementExtensions on Element {
     return this;
   }
 
+  Element minWidth(int value) {
+    style.minWidth = px(value);
+    return this;
+  }
+
+  Element maxWidth(int value) {
+    style.maxWidth = px(value);
+    return this;
+  }
+
   Element addText(String value) {
     return add(text(value));
   }
 
   Element addHeightBox(int height) {
-    return add(div().height(height));
+    return add(Element.div().height(height));
   }
 
   Element add(Element element) {
@@ -107,8 +117,27 @@ extension ElementExtensions on Element {
     return this;
   }
 
+  Element div(dynamic value){
+
+    var element = Element.div();
+    if(value is String){
+      element.text = value;
+    }
+    if(value is Iterable<Element>){
+      element.children.addAll(value);
+    }
+    children.add(element);
+
+    return this;
+  }
+
   Element background(String color) {
     style.backgroundColor = color;
+    return this;
+  }
+
+  Element textColor(String value){
+    style.color = value;
     return this;
   }
 
@@ -136,9 +165,14 @@ extension ElementExtensions on Element {
   }
 
   Element setBorder(
-      {int px = 1, BorderStyle style = BorderStyle.Solid, String color}) {
+      {int px = 1, BorderStyle style = BorderStyle.Solid, String color = 'black', int radius = 0}) {
     // TODO Read style and color
-    this.style.border = '${px}px solid black';
+    this.style.border = '${px}px solid $color';
+
+    if(radius != null){
+      this.style.borderRadius = '${radius}px';
+    }
+
     return this;
   }
 
